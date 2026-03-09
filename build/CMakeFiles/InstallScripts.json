@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/keshavgarg/url-shortener/build/cmake_install.cmake",
+		"/Users/keshavgarg/url-shortener/build/Crow/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
