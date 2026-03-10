@@ -5,10 +5,11 @@ sqlite3* DB;
 
 void UrlService::initDB() {
 
-    int exit = sqlite3_open("urlshortener.db", &DB);
+    int exit = sqlite3_open("../urlshortener.db", &DB);
 
     if (exit != SQLITE_OK) {
         std::cerr << "Error opening DB: " << sqlite3_errmsg(DB) << std::endl;
+        return;
     } 
     else {
         std::cout << "Database opened successfully!" << std::endl;
@@ -30,6 +31,7 @@ void UrlService::initDB() {
         sqlite3_free(errMsg);
     }
 }
+
 
 
 void UrlService::insertURL(const std::string& shortCode, const std::string& originalUrl) {
@@ -67,6 +69,18 @@ std::string UrlService::getOriginalURL(const std::string& code) {
     return result;
 }
 
+std::string UrlService::encodeBase62(long long num) {
+    std::string chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    std::string result;
+
+    while (num > 0) {
+        result = chars[num % 62] + result;
+        num /= 62;
+    }
+
+    return result;
+}
+
 
 void UrlService::incrementClicks(const std::string& code) {
 
@@ -98,4 +112,21 @@ int UrlService::getClickCount(const std::string& code) {
     sqlite3_finalize(stmt);
 
     return count;
+}
+long long UrlService::getLastInsertId() {
+    return sqlite3_last_insert_rowid(DB);
+}
+
+void UrlService::updateShortCode(long long id, const std::string& code) {
+
+    std::string sql = "UPDATE urls SET short_code = ? WHERE id = ?;";
+    sqlite3_stmt* stmt;
+
+    sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
+
+    sqlite3_bind_text(stmt, 1, code.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 2, id);
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
 }

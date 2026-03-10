@@ -88,13 +88,13 @@ int main() {
 
         std::string original_url = url;
 
-        std::string short_code;
+        UrlService::insertURL("", original_url);
 
-        do {
-        short_code = generateShortCode();
-        } while (!UrlService::getOriginalURL(short_code).empty());
+        long long id = UrlService::getLastInsertId();
 
-        UrlService::insertURL(short_code, original_url);
+        std::string short_code = UrlService::encodeBase62(id);
+
+        UrlService::updateShortCode(id, short_code);
 
         crow::json::wvalue result;
         result["short_url"] = "http://localhost:18080/" + short_code;
